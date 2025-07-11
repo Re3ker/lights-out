@@ -4,4 +4,5 @@ export default {
   build: {
     outDir: "dist", // Output directory for build
   },
+  assetsInclude: ["**/*.jpg", "**/*.wav"]
 };

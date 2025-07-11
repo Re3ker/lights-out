@@ -61,6 +61,11 @@ export default function game(k) {
 
   // Function to handle a single move (used by both player and bot)
   function makeMove(row, col) {
+    grid[row][col].color = k.rgb(255, 255, 255);
+    k.wait(0.2, () => {
+        grid[row][col].color = k.rgb(255, 255, 255, 0);
+    });
+
     board = toggleLights(board, row, col);
     moves++;
 

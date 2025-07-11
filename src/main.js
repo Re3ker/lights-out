@@ -14,13 +14,13 @@ const k = kaplay({
 k.canvas.focus();
 
 // Load sprite images
-k.loadSprite("light-on", "/assets/on.jpg");
-k.loadSprite("light-off", "/assets/off.jpg");
-k.loadSprite("background", "/assets/background.jpg");
+k.loadSprite("light-on", "/lights-out/assets/on.jpg");
+k.loadSprite("light-off", "/lights-out/assets/off.jpg");
+k.loadSprite("background", "/lights-out/assets/background.jpg");
 
 // Load sound effects
-k.loadSound("sound-on", "/assets/on.wav");
-k.loadSound("sound-off", "/assets/off.wav");
+k.loadSound("sound-on", "/lights-out/assets/on.wav");
+k.loadSound("sound-off", "/lights-out/assets/off.wav");
 
 // Register scenes
 k.scene("mainMenu", () => mainMenu(k));
