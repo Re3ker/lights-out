@@ -2,7 +2,6 @@ import { createBoard, randomizeBoard, toggleLights, isGameWon, solveBoard } from
 
 export default function game(k) {
   // Define layers
-  k.layers(["background", "game", "ui"], "game");
 
   const SIZE = 5;
   const CELL_SIZE = 80;
@@ -85,8 +84,8 @@ export default function game(k) {
 
     // Check for win
     if (isGameWon(board)) {
-      k.go("gameOver", moves);
-      isBotPlaying = false;
+        isBotPlaying = false;
+        k.go("gameOver", moves);
     }
   }
 
@@ -97,7 +96,6 @@ export default function game(k) {
       for (let j = 0; j < SIZE; j++) {
         const cell = grid[i][j];
         if (cell.isHovering()) {
-          console.log(`Clicked cell at row ${i}, col ${j}`);
           makeMove(i, j);
           break;
         }
@@ -110,7 +108,6 @@ export default function game(k) {
     if (isBotPlaying) return;
     isBotPlaying = true;
     const movesList = solveBoard(board);
-    console.log("AI bot moves:", movesList);
 
     let moveIndex = 0;
     function playNextMove() {
@@ -119,10 +116,9 @@ export default function game(k) {
         return;
       }
       const [row, col] = movesList[moveIndex];
-      console.log(`Bot toggling cell at row ${row}, col ${col}`);
       makeMove(row, col);
       moveIndex++;
-      k.wait(0.5, playNextMove);
+      k.wait(0.1, playNextMove);
     }
 
     playNextMove();

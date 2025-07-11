@@ -5,10 +5,16 @@ import gameOver from "./scenes/gameOver";
 
 // Initialize Kaplay
 const k = kaplay({
-  width: 800,
-  height: 600,
+  width: 720,
+  height: 1280,
   background: [0, 0, 0],
+  touchToMouse: true,
+  letterbox: true,
+  debug: true,
+  pixelDensity: devicePixelRatio
 });
+
+k.setLayers(["background", "game", "ui"], "game");
 
 // Ensure canvas is focused
 k.canvas.focus();
