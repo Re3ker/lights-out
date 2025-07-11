@@ -4,8 +4,8 @@ export default function game(k) {
   // Define layers
 
   const SIZE = 5;
-  const CELL_SIZE = 80;
-  const GAP = 10;
+  const GAP = 12;
+  const CELL_SIZE = k.width() / 5 - GAP * 2;
   let board = createBoard();
   let moves = 0;
   let isBotPlaying = false;
@@ -15,7 +15,7 @@ export default function game(k) {
     k.sprite("background"),
     k.pos(0, 0),
     k.layer("background"),
-    k.scale(k.width() / 800),
+    k.scale(k.width() / 720),
   ]);
 
   // Randomize the board
