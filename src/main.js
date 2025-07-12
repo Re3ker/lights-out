@@ -5,13 +5,13 @@ import gameOver from "./scenes/gameOver";
 
 // Initialize Kaplay
 const k = kaplay({
-  width: 720,
-  height: 1280,
-  background: [0, 0, 0],
-  touchToMouse: true,
-  letterbox: true,
-  debug: true,
-  pixelDensity: devicePixelRatio
+    width: 720,
+    height: 1280,
+    background: [0, 0, 0],
+    touchToMouse: true,
+    letterbox: true,
+    debug: true,
+    pixelDensity: devicePixelRatio,
 });
 
 k.setLayers(["background", "game", "ui"], "game");
@@ -20,13 +20,16 @@ k.setLayers(["background", "game", "ui"], "game");
 k.canvas.focus();
 
 // Load sprite images
-k.loadSprite("light-on", "/lights-out/assets/on.jpg");
-k.loadSprite("light-off", "/lights-out/assets/off.jpg");
+k.loadSprite("light-on", "/lights-out/assets/on.png");
+k.loadSprite("light-off", "/lights-out/assets/off.png");
 k.loadSprite("background", "/lights-out/assets/background.jpg");
 
 // Load sound effects
 k.loadSound("sound-on", "/lights-out/assets/on.wav");
 k.loadSound("sound-off", "/lights-out/assets/off.wav");
+
+// load fonts
+k.loadFont("pixel", "/lights-out/assets/C&CRedAlert[INET].ttf");
 
 // Register scenes
 k.scene("mainMenu", () => mainMenu(k));

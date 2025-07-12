@@ -1,126 +1,135 @@
-import { createBoard, randomizeBoard, toggleLights, isGameWon, solveBoard } from "../utils/gameLogic";
+import {
+    createBoard,
+    randomizeBoard,
+    toggleLights,
+    isGameWon,
+    solveBoard,
+} from "../utils/gameLogic";
 
 export default function game(k) {
-  // Define layers
+    // Define layers
 
-  const SIZE = 5;
-  const GAP = 12;
-  const CELL_SIZE = k.width() / 5 - GAP * 2;
-  let board = createBoard();
-  let moves = 0;
-  let isBotPlaying = false;
+    const SIZE = 5;
+    const GAP = 12;
+    const CELL_SIZE = k.width() / 5 - GAP * 2;
+    let board = createBoard();
+    let moves = 0;
+    let isBotPlaying = false;
+    let buttonSize = 128;
 
-  // Add background
-  k.add([
-    k.sprite("background"),
-    k.pos(0, 0),
-    k.layer("background"),
-    k.scale(k.width() / 720),
-  ]);
+    // Add background
+    k.add([
+        k.sprite("background"),
+        k.pos(0, 0),
+        k.layer("background"),
+        k.scale(k.width() / 720),
+    ]);
 
-  // Randomize the board
-  board = randomizeBoard(board);
+    // Randomize the board
+    board = randomizeBoard(board);
 
-  // Create the grid
-  const grid = Array(SIZE)
-    .fill()
-    .map(() => Array(SIZE).fill(null));
+    // Create the grid
+    const grid = Array(SIZE)
+        .fill()
+        .map(() => Array(SIZE).fill(null));
 
-  // Calculate starting position to center the grid
-  const startX = (k.width() - (SIZE * (CELL_SIZE + GAP) - GAP)) / 2;
-  const startY = (k.height() - (SIZE * (CELL_SIZE + GAP) - GAP)) / 2;
+    // Calculate starting position to center the grid
+    const startX = (k.width() - (SIZE * (CELL_SIZE + GAP) - GAP)) / 2;
+    const startY = (k.height() - (SIZE * (CELL_SIZE + GAP) - GAP)) / 2;
 
-  // Display move count
-  const moveText = k.add([
-    k.text(`Moves: ${moves}`, { size: 24 }),
-    k.pos(k.width() / 2, 50),
-    k.anchor("center"),
-    k.layer("ui"),
-  ]);
+    // Display move count
+    const moveText = k.add([
+        k.text(`Moves: ${moves}`, { font: "pixel", size: 64 }),
+        k.pos(k.width() / 2, 120),
+        k.anchor("center"),
+        k.layer("ui"),
+    ]);
 
-  // Create the grid of sprites
-  for (let i = 0; i < SIZE; i++) {
-    for (let j = 0; j < SIZE; j++) {
-      const x = startX + j * (CELL_SIZE + GAP);
-      const y = startY + i * (CELL_SIZE + GAP);
-      grid[i][j] = k.add([
-        k.sprite(board[i][j] ? "light-on" : "light-off"),
-        k.pos(x, y),
-        k.area({ width: CELL_SIZE, height: CELL_SIZE }),
-        k.scale(CELL_SIZE / 1024), // Scale to fit the cell size
-        k.anchor("topleft"),
-        k.layer("game"),
-        {
-          row: i,
-          col: j,
-        },
-      ]);
+    // Create the grid of sprites
+    for (let i = 0; i < SIZE; i++) {
+        for (let j = 0; j < SIZE; j++) {
+            const x = startX + j * (CELL_SIZE + GAP);
+            const y = startY + i * (CELL_SIZE + GAP);
+            grid[i][j] = k.add([
+                k.sprite(board[i][j] ? "light-on" : "light-off"),
+                k.pos(x, y),
+                k.area({ width: CELL_SIZE, height: CELL_SIZE }),
+                k.scale(CELL_SIZE / buttonSize), // Scale to fit the cell size
+                k.anchor("topleft"),
+                k.layer("game"),
+                {
+                    row: i,
+                    col: j,
+                },
+            ]);
+        }
     }
-  }
 
-  // Function to handle a single move (used by both player and bot)
-  function makeMove(row, col) {
-    grid[row][col].color = k.rgb(255, 255, 255);
-    k.wait(0.2, () => {
-        grid[row][col].color = k.rgb(255, 255, 255, 0);
+    // Function to handle a single move (used by both player and bot)
+    function makeMove(row, col) {
+        grid[row][col].color = k.rgb(255, 255, 255);
+        k.wait(0.2, () => {
+            grid[row][col].color = k.rgb(255, 255, 255, 0);
+        });
+
+        board = toggleLights(board, row, col);
+        moves++;
+
+        // Play sound based on the new state of the clicked cell
+        k.play(board[row][col] ? "sound-on" : "sound-off");
+
+        // Update visuals
+        for (let x = 0; x < SIZE; x++) {
+            for (let y = 0; y < SIZE; y++) {
+                grid[x][y].use(
+                    board[x][y] ? k.sprite("light-on") : k.sprite("light-off")
+                );
+                grid[x][y].use(k.area({ width: CELL_SIZE, height: CELL_SIZE }));
+            }
+        }
+
+        // Update move count
+        moveText.text = `Moves: ${moves}`;
+
+        // Check for win
+        if (isGameWon(board)) {
+            isBotPlaying = false;
+            k.go("gameOver", moves);
+        }
+    }
+
+    // Handle player clicks on the grid
+    k.onMousePress("left", () => {
+        if (isBotPlaying) return;
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE; j++) {
+                const cell = grid[i][j];
+                if (cell.isHovering()) {
+                    makeMove(i, j);
+                    break;
+                }
+            }
+        }
     });
 
-    board = toggleLights(board, row, col);
-    moves++;
+    // Handle AI bot activation with 'K' key
+    k.onKeyPress("k", () => {
+        if (isBotPlaying) return;
+        isBotPlaying = true;
+        const movesList = solveBoard(board);
 
-    // Play sound based on the new state of the clicked cell
-    k.play(board[row][col] ? "sound-on" : "sound-off");
-
-    // Update visuals
-    for (let x = 0; x < SIZE; x++) {
-      for (let y = 0; y < SIZE; y++) {
-        grid[x][y].use(board[x][y] ? k.sprite("light-on") : k.sprite("light-off"));
-        grid[x][y].use(k.area({ width: CELL_SIZE, height: CELL_SIZE }));
-      }
-    }
-
-    // Update move count
-    moveText.text = `Moves: ${moves}`;
-
-    // Check for win
-    if (isGameWon(board)) {
-        isBotPlaying = false;
-        k.go("gameOver", moves);
-    }
-  }
-
-  // Handle player clicks on the grid
-  k.onMousePress("left", () => {
-    if (isBotPlaying) return;
-    for (let i = 0; i < SIZE; i++) {
-      for (let j = 0; j < SIZE; j++) {
-        const cell = grid[i][j];
-        if (cell.isHovering()) {
-          makeMove(i, j);
-          break;
+        let moveIndex = 0;
+        function playNextMove() {
+            if (moveIndex >= movesList.length || !isBotPlaying) {
+                isBotPlaying = false;
+                return;
+            }
+            const [row, col] = movesList[moveIndex];
+            makeMove(row, col);
+            moveIndex++;
+            k.wait(0.1, playNextMove);
         }
-      }
-    }
-  });
 
-  // Handle AI bot activation with 'K' key
-  k.onKeyPress("k", () => {
-    if (isBotPlaying) return;
-    isBotPlaying = true;
-    const movesList = solveBoard(board);
-
-    let moveIndex = 0;
-    function playNextMove() {
-      if (moveIndex >= movesList.length || !isBotPlaying) {
-        isBotPlaying = false;
-        return;
-      }
-      const [row, col] = movesList[moveIndex];
-      makeMove(row, col);
-      moveIndex++;
-      k.wait(0.1, playNextMove);
-    }
-
-    playNextMove();
-  });
+        playNextMove();
+    });
 }
